@@ -21,13 +21,16 @@ export function LoginPanel() {
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const submittedUsername = String(formData.get("username") ?? "");
+    const submittedPassword = String(formData.get("password") ?? "");
     setLoading(true);
     setError("");
     try {
       const response = await fetch("/api/v1/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: submittedUsername, password: submittedPassword }),
       });
       const payload = (await response.json()) as { account?: { role: Role }; message?: string };
       if (!response.ok || !payload.account) throw new Error(payload.message ?? "登入失敗");
@@ -111,12 +114,12 @@ export function LoginPanel() {
             <form onSubmit={submit} className="mt-6 space-y-4">
               <label className="block">
                 <span className="mb-1.5 block text-sm font-medium text-[#292524]">測試帳號</span>
-                <input value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" className="h-12 w-full rounded-lg border border-[#cfc8bf] bg-white px-4 text-[#1c1917] transition focus:border-[#a16207] focus:outline-none" />
+                <input name="username" value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" required className="h-12 w-full rounded-lg border border-[#cfc8bf] bg-white px-4 text-[#1c1917] transition focus:border-[#a16207] focus:outline-none" />
                 <span className="mt-1.5 block text-xs text-[#78716c]">可使用 member01–10、vendor01–10、admin01–10、finance01–10</span>
               </label>
               <label className="block">
                 <span className="mb-1.5 block text-sm font-medium text-[#292524]">測試密碼</span>
-                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" className="h-12 w-full rounded-lg border border-[#cfc8bf] bg-white px-4 text-[#1c1917] transition focus:border-[#a16207] focus:outline-none" />
+                <input name="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required className="h-12 w-full rounded-lg border border-[#cfc8bf] bg-white px-4 text-[#1c1917] transition focus:border-[#a16207] focus:outline-none" />
               </label>
               {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
               <button disabled={loading} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#1c1917] px-4 font-semibold text-white transition duration-200 hover:bg-[#342e2a] disabled:cursor-wait disabled:opacity-60">
