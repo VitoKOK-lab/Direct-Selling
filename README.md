@@ -1,5 +1,7 @@
 # LUXKEY 會員商城暨十代分潤系統－示範驗證版
 
+[![LUXKEY CI](https://github.com/VitoKOK-lab/Direct-Selling/actions/workflows/ci.yml/badge.svg)](https://github.com/VitoKOK-lab/Direct-Selling/actions/workflows/ci.yml)
+
 依 LUXKEY 完整系統說明書建置的繁體中文響應式 Web 示範系統。專案只使用固定合成資料與模擬交易，目的是驗證四角色工作流程、200 人推薦組織、獎金計算、4,000 元循環及財務分類流水。
 
 > 本系統不是正式營運環境，不會處理真人個資、正式金流、發票、銀行撥款或法定扣繳。
@@ -62,6 +64,8 @@ pnpm build
 pnpm exec playwright install chromium webkit
 pnpm test:e2e
 ```
+
+推送至 `main`、建立 Pull Request，或在 GitHub Actions 手動執行時，`LUXKEY CI` 會自動完成上述檢查，並保留 Playwright HTML 報告 14 天。
 
 ## 核心規則
 
