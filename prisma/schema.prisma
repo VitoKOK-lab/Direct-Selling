@@ -1,0 +1,429 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MEMBER
+  VENDOR
+  ADMIN
+  FINANCE
+}
+
+enum MemberStatus {
+  NORMAL
+  FROZEN
+  SUSPENDED
+  EXITED
+  INVALID
+}
+
+enum ProductStatus {
+  DRAFT
+  PENDING
+  RETURNED
+  APPROVED
+  PUBLISHED
+  UNLISTED
+}
+
+enum OrderStatus {
+  DRAFT
+  MOCK_PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  SETTLEMENT_ELIGIBLE
+  SETTLED
+  CANCELLED
+  REFUNDED_BEFORE_SETTLEMENT
+}
+
+enum SettlementStatus {
+  DRAFT
+  PREVIEWED
+  APPROVED
+  POSTED
+  FAILED
+}
+
+enum BonusType {
+  REFERRAL
+  GENERATION
+  ANNUAL_DISTRIBUTION
+}
+
+enum LedgerDestination {
+  ACCUMULATION
+  HELD
+  CASH
+  POINTS
+}
+
+enum WalletType {
+  PENDING_BONUS
+  ACCUMULATION
+  CASH
+  SHOPPING_POINTS
+  HELD_BONUS
+}
+
+enum WaterPoolCategory {
+  UNPAID_REFERRAL
+  MISSING_GENERATION
+  INELIGIBLE_GENERATION
+  LOCKED_GENERATION
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum FeedbackStatus {
+  OPEN
+  REPLIED
+  DONE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  displayName  String
+  role         Role
+  memberId     String?  @unique
+  vendorId     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  member       Member?  @relation(fields: [memberId], references: [id])
+  vendor       Vendor?  @relation(fields: [vendorId], references: [id])
+
+  @@index([role])
+}
+
+model Member {
+  id                    String       @id
+  memberNo              String       @unique
+  name                  String
+  planAmountTwd         Int
+  sponsorId             String?
+  status                MemberStatus @default(NORMAL)
+  joinedAt              DateTime
+  directCount           Int          @default(0)
+  unlockedGenerations   Int
+  depth                  Int
+  incomeTaxApplicable   Boolean      @default(false)
+  nhiApplicable         Boolean      @default(false)
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+  sponsor                Member?      @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: Restrict)
+  directReferrals        Member[]     @relation("MemberSponsor")
+  user                   User?
+  orders                 Order[]
+  snapshots              MonthlyMemberSnapshot[]
+  performanceEvents      PerformanceEvent[]
+  bonusEntries           BonusLedgerEntry[] @relation("BonusBeneficiary")
+  sourceBonusEntries     BonusLedgerEntry[] @relation("BonusSourceMember")
+  wallets                WalletAccount[]
+  withdrawals            Withdrawal[]
+  annualEntries          AnnualDistributionEntry[]
+
+  @@index([sponsorId])
+  @@index([status, planAmountTwd])
+}
+
+model Vendor {
+  id             String   @id
+  vendorNo       String   @unique
+  companyName    String
+  taxId          String
+  contactName    String
+  phone          String
+  shippingAddress String
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  users          User[]
+  products       Product[]
+  orders         Order[]
+}
+
+model Product {
+  id            String        @id
+  sku           String        @unique
+  vendorId      String
+  name          String
+  subtitle      String
+  category      String
+  priceTwd      Int
+  costTwd       Int
+  stock         Int
+  status        ProductStatus
+  pointsAllowed Boolean       @default(true)
+  accent        String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  vendor        Vendor        @relation(fields: [vendorId], references: [id])
+  orderItems    OrderItem[]
+
+  @@index([vendorId, status])
+}
+
+model Order {
+  id                   String      @id
+  orderNo              String      @unique
+  memberId             String
+  vendorId             String
+  amountTwd            Int
+  status               OrderStatus
+  placedAt             DateTime
+  settlementEligibleAt DateTime
+  settledAt            DateTime?
+  trackingNo           String?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  member               Member      @relation(fields: [memberId], references: [id])
+  vendor               Vendor      @relation(fields: [vendorId], references: [id])
+  items                OrderItem[]
+  performanceEvents    PerformanceEvent[]
+
+  @@index([memberId, status])
+  @@index([vendorId, status])
+  @@index([settlementEligibleAt, status])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  unitPriceTwd Int
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+}
+
+model CompensationPlanVersion {
+  id                                String   @id
+  effectiveMonth                    String   @unique
+  status                            String
+  reserveBps                        Int
+  performanceBps                    Int
+  referralOfPerformanceBps          Int
+  generationOfPerformanceBps        Int
+  maxGenerations                    Int
+  productCostBps                    Int
+  cycleThresholdTwd                 Int
+  cycleCashTwd                      Int
+  cyclePoints                       Int
+  annualDistributionBps             Int
+  settlementDelayDays               Int
+  incomeTaxBps                      Int
+  nhiBps                            Int
+  createdAt                         DateTime @default(now())
+  lockedAt                          DateTime?
+  snapshots                         MonthlyMemberSnapshot[]
+  performanceEvents                 PerformanceEvent[]
+  settlementBatches                 SettlementBatch[]
+}
+
+model MonthlyMemberSnapshot {
+  id                    String   @id @default(cuid())
+  month                 String
+  memberId              String
+  planVersionId         String
+  planAmountTwd         Int
+  directCount           Int
+  unlockedGenerations   Int
+  memberStatus          MemberStatus
+  incomeTaxApplicable   Boolean
+  nhiApplicable         Boolean
+  createdAt             DateTime @default(now())
+  member                Member   @relation(fields: [memberId], references: [id])
+  planVersion           CompensationPlanVersion @relation(fields: [planVersionId], references: [id])
+
+  @@unique([month, memberId])
+  @@index([planVersionId])
+}
+
+model SettlementBatch {
+  id              String           @id
+  settlementMonth String
+  planVersionId   String
+  status          SettlementStatus
+  previewOnly     Boolean          @default(true)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  planVersion     CompensationPlanVersion @relation(fields: [planVersionId], references: [id])
+  performanceEvents PerformanceEvent[]
+
+  @@unique([settlementMonth, previewOnly])
+}
+
+model PerformanceEvent {
+  id              String   @id @default(cuid())
+  idempotencyKey  String   @unique
+  type            String
+  sourceId        String
+  memberId        String
+  orderId         String?
+  amountTwd       Int
+  performanceValue Int
+  settlementMonth String
+  planVersionId   String
+  settlementBatchId String?
+  createdAt       DateTime @default(now())
+  member          Member   @relation(fields: [memberId], references: [id])
+  order           Order?   @relation(fields: [orderId], references: [id])
+  planVersion     CompensationPlanVersion @relation(fields: [planVersionId], references: [id])
+  settlementBatch SettlementBatch? @relation(fields: [settlementBatchId], references: [id])
+  bonusEntries    BonusLedgerEntry[]
+  waterPoolEntries WaterPoolEntry[]
+
+  @@index([memberId, settlementMonth])
+  @@index([settlementBatchId])
+}
+
+model BonusLedgerEntry {
+  id                  String   @id
+  performanceEventId  String
+  memberId            String
+  sourceMemberId      String
+  amountTwd           Int
+  bonusType           BonusType
+  generation          Int?
+  destination         LedgerDestination
+  statusAtCalculation MemberStatus
+  planVersionId       String
+  createdAt           DateTime @default(now())
+  performanceEvent    PerformanceEvent @relation(fields: [performanceEventId], references: [id])
+  member              Member   @relation("BonusBeneficiary", fields: [memberId], references: [id])
+  sourceMember        Member   @relation("BonusSourceMember", fields: [sourceMemberId], references: [id])
+
+  @@unique([performanceEventId, bonusType, generation, memberId])
+  @@index([memberId, createdAt])
+}
+
+model WalletAccount {
+  id            String     @id @default(cuid())
+  memberId      String
+  type          WalletType
+  balance       Int        @default(0)
+  updatedAt     DateTime   @updatedAt
+  member        Member     @relation(fields: [memberId], references: [id])
+  ledgerEntries WalletLedgerEntry[]
+
+  @@unique([memberId, type])
+}
+
+model WalletLedgerEntry {
+  id             String   @id @default(cuid())
+  walletAccountId String
+  idempotencyKey String   @unique
+  amount         Int
+  entryType      String
+  sourceType     String
+  sourceId       String
+  reversalOfId   String?
+  createdAt      DateTime @default(now())
+  walletAccount  WalletAccount @relation(fields: [walletAccountId], references: [id])
+
+  @@index([walletAccountId, createdAt])
+}
+
+model WaterPoolEntry {
+  id                 String   @id
+  performanceEventId String
+  sourceMemberId     String
+  expectedMemberId   String?
+  amountTwd          Int
+  category           WaterPoolCategory
+  generation         Int?
+  planVersionId      String
+  createdAt          DateTime @default(now())
+  performanceEvent   PerformanceEvent @relation(fields: [performanceEventId], references: [id])
+
+  @@index([category, createdAt])
+  @@index([sourceMemberId])
+}
+
+model Withdrawal {
+  id           String           @id
+  memberId     String
+  grossTwd     Int
+  incomeTaxTwd Int
+  nhiTwd       Int
+  netTwd       Int
+  status       WithdrawalStatus
+  requestedAt  DateTime         @default(now())
+  reviewedAt   DateTime?
+  paidAt       DateTime?
+  bankReference String?
+  member       Member           @relation(fields: [memberId], references: [id])
+
+  @@index([status, requestedAt])
+}
+
+model AnnualDistributionBatch {
+  id                                String   @id
+  year                              Int      @unique
+  afterTaxDistributableProfitTwd    Int
+  distributionBps                   Int
+  poolTwd                           Int
+  eligibleCount                     Int
+  perMemberTwd                      Int
+  remainderTwd                      Int
+  qualificationDate                 DateTime
+  status                            String
+  createdAt                         DateTime @default(now())
+  entries                           AnnualDistributionEntry[]
+}
+
+model AnnualDistributionEntry {
+  id       String @id @default(cuid())
+  batchId  String
+  memberId String
+  amountTwd Int
+  batch    AnnualDistributionBatch @relation(fields: [batchId], references: [id])
+  member   Member @relation(fields: [memberId], references: [id])
+
+  @@unique([batchId, memberId])
+}
+
+model FeedbackAnnotation {
+  id          String         @id
+  route       String
+  targetLabel String
+  xPercent    Int?
+  yPercent    Int?
+  author      String
+  content     String
+  status      FeedbackStatus
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model AuditEvent {
+  id        String   @id
+  actor     String
+  role      Role
+  action    String
+  target    String
+  result    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actor, createdAt])
+}

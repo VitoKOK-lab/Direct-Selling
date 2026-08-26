@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: luxkey
+      POSTGRES_USER: luxkey
+      POSTGRES_PASSWORD: luxkey_demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - luxkey_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U luxkey -d luxkey"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  web:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://luxkey:luxkey_demo@db:5432/luxkey?schema=public
+      SESSION_SECRET: local-demo-session-secret-change-before-sharing
+      NEXT_PUBLIC_DEMO_LABEL: 示範資料／非正式交易
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  luxkey_pgdata:
