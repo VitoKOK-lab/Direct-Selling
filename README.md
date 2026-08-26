@@ -82,6 +82,7 @@ pnpm test:e2e
 - [系統架構](docs/ARCHITECTURE.md)
 - [API 介面](docs/API.md)
 - [驗收案例](docs/ACCEPTANCE.md)
+- [部署指南（Vercel）](docs/DEPLOY.md)
 - [UI 設計系統](design-system/luxkey-demo/MASTER.md)
 
 ## 正式化邊界
