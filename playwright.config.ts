@@ -7,7 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : [["list"]],
   use: { baseURL: "http://127.0.0.1:3000", trace: "on-first-retry" },
-  webServer: { command: "pnpm dev", url: "http://127.0.0.1:3000", reuseExistingServer: true },
+  webServer: { command: "pnpm dev", url: "http://127.0.0.1:3000", reuseExistingServer: true, env: { MAINTENANCE_MODE: "off" } },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
     { name: "mobile", use: { ...devices["iPhone 13"] } },
