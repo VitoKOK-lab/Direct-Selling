@@ -16,6 +16,7 @@ import {
   FileClock,
   Gift,
   HandCoins,
+  KeyRound,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -75,6 +76,7 @@ const navByRole: Record<Role, NavItem[]> = {
     { key: "annual", label: "年度分配", icon: CircleDollarSign },
     { key: "reports", label: "營運報表", icon: FileBarChart },
     { key: "audit", label: "稽核紀錄", icon: ShieldCheck },
+    { key: "logins", label: "登入紀錄", icon: KeyRound },
     { key: "feedback", label: "回饋標註", icon: MessageSquareText, alert: "1" },
   ],
   finance: [
