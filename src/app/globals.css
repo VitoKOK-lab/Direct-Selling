@@ -65,14 +65,16 @@
 }
 
 * { box-sizing: border-box; }
-html { min-width: 320px; background: var(--stone-50); }
+/* 全站字級基準 16px → 20px（+4px），rem 基準的字級與間距等比例縮放 */
+html { min-width: 320px; background: var(--stone-50); font-size: 125%; }
 body {
   margin: 0;
   color: var(--ink-950);
   background: var(--stone-50);
   font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.5;
+  overflow-x: clip;
   text-rendering: optimizeLegibility;
 }
 button, input, select, textarea { font: inherit; }
