@@ -105,6 +105,7 @@ export const demoProducts: Product[] = productNames.map(([name, subtitle, catego
   status: index === 3 ? "PENDING" : index === 8 ? "RETURNED" : index === 11 ? "UNLISTED" : "PUBLISHED",
   pointsAllowed: index % 4 !== 3,
   accent: ["#B8892D", "#81663A", "#68625B", "#9B7628"][index % 4],
+  image: `/products/p${String(index + 1).padStart(3, "0")}.webp`,
 }));
 
 const orderStatuses = ["SETTLED", "SETTLEMENT_ELIGIBLE", "SHIPPED", "PROCESSING", "DELIVERED", "MOCK_PAID"] as const;

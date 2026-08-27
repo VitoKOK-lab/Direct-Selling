@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -94,7 +95,7 @@ function MemberOverview({ member, wallet, orders }: { member: Member; wallet: (t
 
 function ProductCard({ product, onAdd }: { product: Product; onAdd: () => void }) {
   return <article className="group overflow-hidden rounded-xl border border-[#ded9d2] bg-[#fffdfa] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(28,25,23,.1)]">
-    <div className="relative grid aspect-[4/3] place-items-center overflow-hidden" style={{ background: `linear-gradient(145deg, ${product.accent}26, #ebe7df)` }}><div className="absolute inset-4 border border-white/50" /><div className="relative grid size-24 place-items-center rounded-full border border-white/70 bg-white/38 shadow-inner backdrop-blur-sm"><Sparkles className="size-9" style={{ color: product.accent }} /></div><span className="absolute left-3 top-3 rounded-full bg-white/85 px-2 py-1 text-[10px] font-semibold text-stone-600 backdrop-blur">{product.category}</span>{product.pointsAllowed && <span className="absolute bottom-3 right-3 rounded-full bg-[#241f1b] px-2 py-1 text-[10px] font-semibold text-[#e0c47d]">點數可用</span>}</div>
+    <div className="relative aspect-[4/3] overflow-hidden" style={{ background: `linear-gradient(145deg, ${product.accent}26, #ebe7df)` }}><Image src={product.image} alt={product.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw" className="object-cover transition duration-300 group-hover:scale-[1.03]" /><span className="absolute left-3 top-3 rounded-full bg-white/85 px-2 py-1 text-[10px] font-semibold text-stone-600 backdrop-blur">{product.category}</span>{product.pointsAllowed && <span className="absolute bottom-3 right-3 rounded-full bg-[#241f1b] px-2 py-1 text-[10px] font-semibold text-[#e0c47d]">點數可用</span>}</div>
     <div className="p-4"><h3 className="font-semibold tracking-[-.01em]">{product.name}</h3><p className="mt-1 text-xs text-stone-500">{product.subtitle}</p><div className="mt-4 flex items-end justify-between gap-3"><div><p className="font-data text-lg font-semibold">{formatTwd(product.priceTwd)}</p><p className="text-[10px] text-stone-400">庫存 {product.stock}</p></div><button onClick={onAdd} className="grid size-11 place-items-center rounded-lg bg-[#1c1917] text-white transition hover:bg-[#8a6107]" aria-label={`加入購物車：${product.name}`}><Plus className="size-5" /></button></div></div>
   </article>;
 }

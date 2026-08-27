@@ -42,6 +42,7 @@ export interface Product {
   pointsAllowed: boolean;
   accent: string;
   category: string;
+  image: string;
 }
 
 export type OrderStatus =
