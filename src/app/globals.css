@@ -77,7 +77,10 @@ body {
 }
 button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
-a { color: inherit; text-decoration: none; }
+/* 需置於 base layer，否則未分層規則會永遠蓋過 utilities layer 的 text-* 類別 */
+@layer base {
+  a { color: inherit; text-decoration: none; }
+}
 button { cursor: pointer; }
 :focus-visible { outline: 3px solid rgba(161, 98, 7, 0.42); outline-offset: 2px; }
 ::selection { background: var(--gold-300); color: var(--ink-950); }
