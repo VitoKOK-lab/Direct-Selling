@@ -61,20 +61,15 @@ export function LoginPanel() {
               <span className="size-1.5 rounded-full bg-[#d9b65d]" />
               示範驗證環境
             </span>
-            <h1 className="mt-6 max-w-xl text-4xl font-semibold leading-[1.18] tracking-[-.04em] sm:text-5xl lg:text-6xl">
-              每一筆分潤，<br />都有清楚的答案。
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-white/58 sm:text-lg">
-              從來源訂單、業績值到十代獎金與錢包循環，200 人固定情境可逐筆追溯、重複驗算。
-            </p>
-          </div>
-          <div className="relative mt-12 grid gap-3 sm:grid-cols-3">
-            {[['200', '固定模擬會員'], ['10 代', '組織分紅追溯'], ['4 角色', '完整操作流程']].map(([value, label]) => (
-              <div key={label} className="border-t border-white/12 pt-4">
-                <p className="font-data text-2xl font-semibold text-[#e0c47d]">{value}</p>
-                <p className="mt-1 text-xs text-white/45">{label}</p>
-              </div>
-            ))}
+            <h1 className="mt-8 text-2xl font-semibold tracking-[-.02em] text-[#efe9dd]">系統登入</h1>
+            <dl className="mt-6 max-w-md divide-y divide-white/10 border-y border-white/10 text-sm">
+              {[["系統代號", "LUXKEY-DEMO"], ["環境", "示範驗證（非正式營運）"], ["資料情境", "200 名合成會員・固定推薦組織"], ["權限模組", "會員／廠商／營運管理／財務"]].map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between gap-6 py-3">
+                  <dt className="shrink-0 text-[#a89f93]">{label}</dt>
+                  <dd className="font-data text-right text-[#e6ddcd]">{value}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </div>
 
