@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // standalone 供 Dockerfile 使用；Vercel 有自己的建置輸出，兩者衝突會使部署失敗
+  output: process.env.VERCEL ? undefined : "standalone",
   poweredByHeader: false,
   allowedDevOrigins: ["127.0.0.1"],
   async headers() {
