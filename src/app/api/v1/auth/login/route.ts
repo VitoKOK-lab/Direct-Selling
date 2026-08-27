@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSessionToken, sessionCookie, verifyDemoCredentials } from "@/lib/auth";
+import { recordLogin } from "@/lib/login-log";
 
 const loginSchema = z.object({
   username: z.string().trim().min(3).max(40),
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
   }
 
   attempts.delete(ip);
+  recordLogin({ username: account.username, displayName: account.displayName, role: account.role, ip, userAgent: request.headers.get("user-agent") ?? "" });
   const response = NextResponse.json({ account: { username: account.username, role: account.role, displayName: account.displayName } });
   response.cookies.set(sessionCookie.name, createSessionToken(account), sessionCookie.options);
   return response;

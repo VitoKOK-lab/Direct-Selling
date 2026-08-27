@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Activity,
@@ -16,6 +16,7 @@ import {
   Filter,
   GitBranch,
   Info,
+  KeyRound,
   LockKeyhole,
   MessageSquareText,
   Network,
@@ -62,6 +63,7 @@ export function AdminViews({ section }: { section: string; account: DemoAccount 
   if (section === "annual") return <AdminAnnual />;
   if (section === "reports") return <AdminReports />;
   if (section === "audit") return <AdminAudit />;
+  if (section === "logins") return <AdminLogins />;
   if (section === "feedback") return <AdminFeedback />;
   return <AdminOverview />;
 }
@@ -149,6 +151,40 @@ function AuditRows({ limit = auditEvents.length }: { limit?: number }) {
 
 function AdminAudit() {
   return <div className="animate-enter"><PageIntro title="稽核紀錄" description="角色權限、制度變更、推薦關係更正及財務操作均留下不可覆寫的操作紀錄。" actions={<button className={buttonStyles.secondary}><Download className="size-4" />匯出稽核</button>} /><div className="grid gap-3 sm:grid-cols-3"><KpiCard label="本日操作" value="184" helper="4 種角色共 40 組帳號" icon={Activity} /><KpiCard label="敏感操作" value="12" helper="制度、財務與會員狀態" icon={ShieldCheck} tone="gold" /><KpiCard label="阻擋越權" value="3" helper="皆已記錄來源與角色" icon={LockKeyhole} tone="green" /></div><section className="surface mt-4 overflow-hidden rounded-xl"><AuditRows /></section></div>;
+}
+
+interface LoginRecordItem { id: string; username: string; displayName: string; role: "member" | "vendor" | "admin" | "finance"; at: string; ip: string; device: string }
+
+const loginRoleLabels: Record<LoginRecordItem["role"], string> = { member: "會員", vendor: "廠商", admin: "管理員", finance: "財務" };
+
+function formatLoginTime(at: string) {
+  return new Date(at).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false, month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+function AdminLogins() {
+  const [logins, setLogins] = useState<LoginRecordItem[] | null>(null);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    fetch("/api/v1/auth/logins")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("讀取登入紀錄失敗");
+        const payload = (await response.json()) as { data: { logins: LoginRecordItem[] } };
+        setLogins(payload.data.logins);
+      })
+      .catch((reason) => setError(reason instanceof Error ? reason.message : "讀取登入紀錄失敗"));
+  }, []);
+  const today = new Date().toLocaleDateString("zh-TW", { timeZone: "Asia/Taipei" });
+  const todayCount = (logins ?? []).filter((entry) => new Date(entry.at).toLocaleDateString("zh-TW", { timeZone: "Asia/Taipei" }) === today).length;
+  const uniqueAccounts = new Set((logins ?? []).map((entry) => entry.username)).size;
+  return <div className="animate-enter"><PageIntro title="登入紀錄" description="追蹤每次成功登入的帳號、時間、來源 IP 與裝置。" />
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"><KpiCard label="今日登入" value={logins ? formatNumber(todayCount) : "—"} helper="以台北時區計算" icon={KeyRound} tone="gold" /><KpiCard label="不重複帳號" value={logins ? formatNumber(uniqueAccounts) : "—"} helper="近期紀錄內" icon={Users} /><KpiCard label="保留筆數上限" value="200" helper="超過自動汰舊" icon={ShieldCheck} tone="blue" /></div>
+    <section className="surface mt-4 overflow-hidden rounded-xl">
+      {error ? <p className="p-5 text-sm text-red-700">{error}</p> : !logins ? <p className="p-5 text-sm text-stone-500">讀取中…</p> : (
+        <DataTable headers={["時間", "帳號", "姓名", "角色", "來源 IP", "裝置"]} minWidth={760}>{logins.map((entry) => <tr key={entry.id} className="hover:bg-[#fbfaf8]"><td className="font-data px-3 py-3 text-xs">{formatLoginTime(entry.at)}</td><td className="font-data px-3 py-3 text-sm font-semibold">{entry.username}</td><td className="px-3 py-3 text-sm">{entry.displayName}</td><td className="px-3 py-3"><StatusBadge tone={entry.role === "admin" ? "gold" : entry.role === "finance" ? "info" : "neutral"}>{loginRoleLabels[entry.role]}</StatusBadge></td><td className="font-data px-3 py-3 text-xs text-stone-500">{entry.ip}</td><td className="px-3 py-3 text-xs text-stone-600">{entry.device}</td></tr>)}</DataTable>
+      )}
+    </section>
+    <div className="mt-4 rounded-xl border border-[#e5ded3] bg-[#faf8f3] p-4 text-xs leading-5 text-[#625d57]"><Info className="mr-1 inline size-4 text-[#8a6107]" />示範版紀錄保存在伺服器記憶體，重新部署或執行個體回收後會重置，僅保留最近 200 筆；正式營運版將寫入資料庫永久保存。</div>
+  </div>;
 }
 
 function AdminFeedback() {
