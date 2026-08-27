@@ -108,9 +108,9 @@ export function PortalShell({ account, role, section }: { account: DemoAccount; 
       <div className="flex h-[72px] items-center justify-between border-b border-white/8 px-4">
         <Link href={`/${role}`} className="flex min-h-11 items-center gap-3 rounded-lg px-1" aria-label="LUXKEY 首頁">
           <div className="grid size-9 place-items-center border border-[#d1ab57]/40 bg-[#d1ab57]/10 text-[#dfc579]"><Sparkles className="size-4" /></div>
-          {!collapsed && <div><p className="text-[10px] font-bold tracking-[.28em] text-[#d9b95f]">LUXKEY</p><p className="text-xs text-white/48">示範驗證系統</p></div>}
+          {!collapsed && <div><p className="text-[10px] font-bold tracking-[.28em] text-[#d9b95f]">LUXKEY</p><p className="text-xs text-[#a89f93]">示範驗證系統</p></div>}
         </Link>
-        <button onClick={() => setMobileOpen(false)} className="grid size-11 place-items-center rounded-lg text-white/60 hover:bg-white/8 lg:hidden" aria-label="關閉選單"><X className="size-5" /></button>
+        <button onClick={() => setMobileOpen(false)} className="grid size-11 place-items-center rounded-lg text-[#cfc7ba] hover:bg-[#2a2521] lg:hidden" aria-label="關閉選單"><X className="size-5" /></button>
       </div>
       <div className="px-3 pt-4">
         {!collapsed && <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#d1ab57]/16 bg-[#d1ab57]/8 px-3 py-2 text-xs text-[#dfc579]"><span className="size-1.5 rounded-full bg-[#d9b95f]" />{roleLabels[role]}工作台</div>}
@@ -118,15 +118,15 @@ export function PortalShell({ account, role, section }: { account: DemoAccount; 
           {nav.map((item) => {
             const Icon = item.icon;
             const active = section === item.key || (section === "overview" && item.key === "overview");
-            return <Link key={item.key} href={item.key === "overview" ? `/${role}` : `/${role}/${item.key}`} onClick={() => setMobileOpen(false)} title={collapsed ? item.label : undefined} className={`group flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm transition ${active ? "bg-[#c39636] text-[#17120c] shadow-[inset_3px_0_0_#f1d695]" : "text-white/56 hover:bg-white/7 hover:text-white"}`}>
+            return <Link key={item.key} href={item.key === "overview" ? `/${role}` : `/${role}/${item.key}`} onClick={() => setMobileOpen(false)} title={collapsed ? item.label : undefined} className={`group flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm transition ${active ? "bg-[#c39636] text-[#17120c] shadow-[inset_3px_0_0_#f1d695]" : "text-[#cfc7ba] hover:bg-[#2a2521] hover:text-white"}`}>
               <Icon className="size-[18px] shrink-0" aria-hidden="true" />
-              {!collapsed && <><span className="flex-1">{item.label}</span>{item.alert && <span className={`grid min-w-5 place-items-center rounded-full px-1.5 text-[10px] font-bold ${active ? "bg-black/15" : "bg-white/10 text-[#e3c776]"}`}>{item.alert}</span>}</>}
+              {!collapsed && <><span className="flex-1">{item.label}</span>{item.alert && <span className={`grid min-w-5 place-items-center rounded-full px-1.5 text-[10px] font-bold ${active ? "bg-black/15" : "bg-[#332d26] text-[#e3c776]"}`}>{item.alert}</span>}</>}
             </Link>;
           })}
         </nav>
       </div>
       <div className="mt-auto border-t border-white/8 p-3">
-        <button onClick={() => setCollapsed((value) => !value)} className="hidden min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm text-white/45 hover:bg-white/7 hover:text-white lg:flex" aria-label={collapsed ? "展開側邊欄" : "收合側邊欄"}><PanelLeftClose className={`size-[18px] transition ${collapsed ? "rotate-180" : ""}`} />{!collapsed && "收合選單"}</button>
+        <button onClick={() => setCollapsed((value) => !value)} className="hidden min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm text-[#a89f93] hover:bg-[#2a2521] hover:text-white lg:flex" aria-label={collapsed ? "展開側邊欄" : "收合側邊欄"}><PanelLeftClose className={`size-[18px] transition ${collapsed ? "rotate-180" : ""}`} />{!collapsed && "收合選單"}</button>
       </div>
     </>
   );
