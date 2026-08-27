@@ -53,7 +53,7 @@ export function LoginPanel() {
                 <Sparkles className="size-5" aria-hidden="true" />
               </div>
               <div>
-                <p className="text-[11px] font-semibold tracking-[.34em] text-[#d6b86e]">LUXKEY</p>
+                <p className="text-[0.6875rem] font-semibold tracking-[.34em] text-[#d6b86e]">LUXKEY</p>
                 <p className="mt-0.5 text-sm text-white/60">會員商城暨分潤系統</p>
               </div>
             </div>
@@ -100,7 +100,7 @@ export function LoginPanel() {
                       {active && <span className="grid size-5 place-items-center rounded-full bg-[#8a6107] text-white"><Check className="size-3" /></span>}
                     </div>
                     <p className="mt-3 text-sm font-semibold text-[#1c1917]">{option.label}</p>
-                    <p className="mt-0.5 hidden text-[11px] text-[#78716c] sm:block">{option.description}</p>
+                    <p className="mt-0.5 hidden text-[0.6875rem] text-[#78716c] sm:block">{option.description}</p>
                   </button>
                 );
               })}
