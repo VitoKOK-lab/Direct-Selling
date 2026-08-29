@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 // 維護模式預設值："on" 關站、"off" 開放；環境變數 MAINTENANCE_MODE 可覆寫。
-const MAINTENANCE_DEFAULT = "off";
+const MAINTENANCE_DEFAULT = "on";
 const maintenanceActive = () => (process.env.MAINTENANCE_MODE ?? MAINTENANCE_DEFAULT) !== "off";
 
 export function proxy(request: NextRequest) {
