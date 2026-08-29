@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-// 維護模式：預設開啟；設定環境變數 MAINTENANCE_MODE=off 才恢復對外服務。
-const maintenanceActive = () => process.env.MAINTENANCE_MODE !== "off";
+// 維護模式預設值："on" 關站、"off" 開放；環境變數 MAINTENANCE_MODE 可覆寫。
+const MAINTENANCE_DEFAULT = "off";
+const maintenanceActive = () => (process.env.MAINTENANCE_MODE ?? MAINTENANCE_DEFAULT) !== "off";
 
 export function proxy(request: NextRequest) {
   if (!maintenanceActive()) return NextResponse.next();
